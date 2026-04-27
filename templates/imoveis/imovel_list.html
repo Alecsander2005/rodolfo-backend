@@ -1,0 +1,62 @@
+{% extends 'imoveis/base.html' %}
+
+{% block content %}
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Imóveis cadastrados</h2>
+      <p style="margin:8px 0 0; color:#6b7280;">Lista completa de imóveis e ações de edição/exclusão.</p>
+    </div>
+    <a href="{% url 'imovel_create' %}" class="button">Cadastrar imóvel</a>
+  </div>
+
+  <div class="notice">
+    Este painel funciona diretamente para o administrador do site. Faça uploads de imagem principal ao cadastrar ou editar.
+  </div>
+
+  <div class="table-responsive" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Título</th>
+          <th>Cidade</th>
+          <th>Bairro</th>
+          <th>Preço</th>
+          <th>Tipo</th>
+          <th>Finalidade</th>
+          <th>Situação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for imovel in imoveis %}
+          <tr>
+            <td data-label="Foto">
+              {% if imovel.imagem_principal %}
+                <img src="{{ imovel.imagem_principal.url }}" alt="{{ imovel.titulo }}" class="table-image" />
+              {% else %}
+                <div style="width:80px; height:60px; border-radius:14px; background:#e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280;">sem foto</div>
+              {% endif %}
+            </td>
+            <td data-label="Título">{{ imovel.titulo }}</td>
+            <td data-label="Cidade">{{ imovel.cidade }}</td>
+            <td data-label="Bairro">{{ imovel.bairro }}</td>
+            <td data-label="Preço">R$ {{ imovel.preco|floatformat:2 }}</td>
+            <td data-label="Tipo">{{ imovel.tipo }}</td>
+            <td data-label="Finalidade">{{ imovel.finalidade }}</td>
+            <td data-label="Situação">{{ imovel.status }}</td>
+            <td data-label="Ações">
+              <a href="{% url 'imovel_update' imovel.pk %}" class="button secondary small-button">Editar</a>
+              <a href="{% url 'imovel_delete' imovel.pk %}" class="button secondary small-button">Excluir</a>
+              <a href="{% url 'imovel_detail' imovel.pk %}" class="button secondary small-button">Ver</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="padding:24px 14px; text-align:center; color:#6b7280;">Nenhum imóvel encontrado.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

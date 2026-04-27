@@ -1,0 +1,24 @@
+{% extends 'imoveis/base.html' %}
+
+{% block content %}
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">Excluir imóvel</h2>
+      <p style="margin:8px 0 0; color:#6b7280;">Confirme abaixo se deseja excluir permanentemente este imóvel.</p>
+    </div>
+    <a href="{% url 'imovel_list' %}" class="button secondary">Voltar à lista</a>
+  </div>
+
+  <div class="notice">
+    <p><strong>Você está prestes a excluir:</strong></p>
+    <p>{{ object.titulo }} — {{ object.cidade }} / {{ object.bairro }}</p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <input type="submit" value="Confirmar exclusão" class="button" />
+      <a href="{% url 'imovel_list' %}" class="button secondary">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

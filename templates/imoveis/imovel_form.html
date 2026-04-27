@@ -1,0 +1,135 @@
+{% extends 'imoveis/base.html' %}
+
+{% block content %}
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+    <div>
+      <h2 style="margin:0; font-size:1.4rem;">{% if object %}Editar imóvel{% else %}Cadastrar novo imóvel{% endif %}</h2>
+      <p style="margin:8px 0 0; color:#6b7280;">Use o formulário abaixo para cadastrar ou atualizar o imóvel diretamente no backend.</p>
+    </div>
+    <a href="{% url 'imovel_list' %}" class="button secondary">Voltar à lista</a>
+  </div>
+
+  {% if object and object.imagens.exists %}
+    <div class="image-grid" style="margin-bottom:18px;">
+      {% for foto in object.imagens.all %}
+        <div class="image-card">
+          <img src="{{ foto.imagem.url }}" alt="{{ object.titulo }} foto {{ forloop.counter }}" />
+          <form method="post" action="{% url 'imagem_delete' foto.pk %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="button secondary small-button" style="width:100%;">Remover</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" style="display:grid; gap:24px;">
+    {% csrf_token %}
+
+    {% if form.errors %}
+      <div class="notice" style="background:#fee2e2; border-color:#fecaca; color:#991b1b;">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    {% if object and object.imagem_principal %}
+      <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
+        <div>
+          <p style="margin:0 0 8px; font-weight:700;">Imagem principal atual</p>
+          <img src="{{ object.imagem_principal.url }}" alt="Imagem atual" style="width:240px; height:160px; object-fit:cover; border-radius:20px; border:1px solid #e5e7eb;" />
+        </div>
+        <div style="max-width:320px;">
+          <p style="margin:0 0 8px; color:#6b7280;">Escolha uma nova imagem abaixo para atualizar ou selecione a opção para remover a imagem de capa.</p>
+          <label style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
+            <input type="checkbox" name="remover_imagem_principal" value="1" style="width:18px; height:18px;" />
+            Remover imagem de capa atual
+          </label>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_titulo">Título</label>
+        {{ form.titulo }}
+      </div>
+      <div>
+        <label for="id_tipo">Tipo</label>
+        {{ form.tipo }}
+      </div>
+    </div>
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_finalidade">Finalidade</label>
+        {{ form.finalidade }}
+      </div>
+      <div>
+        <label for="id_status">Situação</label>
+        {{ form.status }}
+      </div>
+    </div>
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_cidade">Cidade</label>
+        {{ form.cidade }}
+      </div>
+      <div>
+        <label for="id_bairro">Bairro</label>
+        {{ form.bairro }}
+      </div>
+    </div>
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_quartos">Quartos</label>
+        {{ form.quartos }}
+      </div>
+      <div>
+        <label for="id_banheiros">Banheiros</label>
+        {{ form.banheiros }}
+      </div>
+    </div>
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_vagas_garagem">Vagas</label>
+        {{ form.vagas_garagem }}
+      </div>
+      <div>
+        <label for="id_metragem">Metragem (m²)</label>
+        {{ form.metragem }}
+      </div>
+    </div>
+
+    <div class="form-grid two-cols">
+      <div>
+        <label for="id_preco">Preço</label>
+        {{ form.preco }}
+      </div>
+      <div>
+        <label for="id_imagem_principal">Imagem principal</label>
+        <input type="file" name="imagem_principal" id="id_imagem_principal" accept="image/*" style="width:100%; padding:12px 14px; border:1px solid #d1d5db; border-radius:14px; background:#f9fafb;" />
+        {% if object and object.imagem_principal %}
+          <p style="margin:8px 0 0; color:#6b7280; font-size:0.92rem;">Se quiser substituir, selecione um novo arquivo aqui. Se quiser remover, marque a opção acima.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <label for="id_outras_imagens">Outras imagens</label>
+      <input type="file" name="outras_imagens" id="id_outras_imagens" multiple accept="image/*" style="width:100%; padding:12px 14px; border:1px solid #d1d5db; border-radius:14px; background:#f9fafb;" />
+    </div>
+
+    <div>
+      <label for="id_descricao">Descrição</label>
+      {{ form.descricao }}
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <input type="submit" value="Salvar" class="button" />
+      <a href="{% url 'imovel_list' %}" class="button secondary">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}
