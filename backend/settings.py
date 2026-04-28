@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temp-key')
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']  # depois você pode restringir
+ALLOWED_HOSTS = ['rodolfo-backend-1.onrender.com', 'localhost', '127.0.0.1']
 
 # 🧩 Apps
 INSTALLED_APPS = [
@@ -55,12 +55,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# 🗄️ Database Configuration
+if os.environ.get('DATABASE_URL'):
+    # Render PostgreSQL - usar URL interna
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'rodolfo_db',
+            'USER': 'rodolfo_user',
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'nShkJUoFwETH1e8bzjB3j8wgI8ODZ8X6'),
+            'HOST': 'dpg-d7nvub9kh4rs73bg1r1g-a',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    # Local SQLite (development)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -76,6 +91,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
