@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temp-key')
 DEBUG = False
 
-ALLOWED_HOSTS = ['rodolfo-backend-1.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['rodolfo-backend-1.onrender.com', 'localhost', '127.0.0.1', '.onrender.com']
 
 # 🧩 Apps
 INSTALLED_APPS = [
@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'corsheaders',   # 👈 ADICIONA
+    'corsheaders',   # 👈 CORS
     'imoveis',
 ]
 
@@ -99,6 +99,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# 📱 WhatsApp Configuration
+WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '5583987654321')  # Número com código do país
+
 # 🌐 CORS (ligação com o Vercel)
 CORS_ALLOWED_ORIGINS = [
     "https://rodolfovelosocorretor.vercel.app",
@@ -124,3 +127,13 @@ CSRF_TRUSTED_ORIGINS = [
     "https://rodolfovelosocorretor.vercel.app",
     "http://localhost:3000",
 ]
+
+# 🔒 Segurança em Produção
+if not DEBUG:
+    SECURE_SSL_REDIRECT = False  # Render gerencia SSL
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_SECURITY_POLICY = {
+        "default-src": ("'self'", "https://rodolfovelosocorretor.vercel.app"),
+    }

@@ -52,9 +52,14 @@ class Imovel(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
 
     def link_whatsapp(self):
-        numero = settings.WHATSAPP_NUMBER
-        mensagem = f"Olá, tenho interesse no imóvel '{self.titulo}' listado no seu site. Poderia me fornecer mais informações?"
-        return f"https://wa.me/{numero}?text={mensagem}"
+        try:
+            numero = settings.WHATSAPP_NUMBER
+            if not numero:
+                return None
+            mensagem = f"Olá, tenho interesse no imóvel '{self.titulo}' listado no seu site. Poderia me fornecer mais informações?"
+            return f"https://wa.me/{numero}?text={mensagem}"
+        except AttributeError:
+            return None
     
     def __str__(self):
         return self.titulo
