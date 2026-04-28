@@ -107,6 +107,9 @@ SECRET_KEY=sua-chave-secreta
 DB_PASSWORD=sua-senha-postgres
 DATABASE_URL=postgresql://user:pass@host/db
 WHATSAPP_NUMBER=5583987654321
+CLOUDINARY_CLOUD_NAME=seu-cloud-name
+CLOUDINARY_API_KEY=sua-api-key
+CLOUDINARY_API_SECRET=sua-api-secret
 ```
 
 ---
@@ -132,7 +135,34 @@ backend/
 
 ---
 
-## 🐛 Troubleshooting
+## �️ Armazenamento de Imagens
+
+### **Cloudinary (Recomendado para Produção)**
+
+O projeto usa **Cloudinary** para armazenar imagens porque:
+
+- ✅ **Render não persiste arquivos** entre deploys
+- ✅ **PostgreSQL gratuito** não armazena arquivos binários
+- ✅ **Cloudinary oferece 25GB grátis** + 25k uploads/mês
+
+### **Configuração do Cloudinary:**
+
+1. **Crie conta gratuita**: https://cloudinary.com/
+2. **Pegue suas credenciais** no Dashboard
+3. **Configure no Render**:
+   ```
+   CLOUDINARY_CLOUD_NAME=seu-cloud-name
+   CLOUDINARY_API_KEY=sua-api-key
+   CLOUDINARY_API_SECRET=sua-api-secret
+   ```
+
+### **Desenvolvimento Local:**
+- Sem Cloudinary: imagens ficam em `media/` local
+- Com Cloudinary: imagens vão para a nuvem
+
+---
+
+## �🐛 Troubleshooting
 
 ### Erro 500 ao acessar `/api/imoveis/`
 - Verificar `ALLOWED_HOSTS`

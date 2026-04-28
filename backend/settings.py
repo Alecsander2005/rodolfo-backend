@@ -20,6 +20,8 @@ INSTALLED_APPS = [
 
     'corsheaders',   # 👈 CORS
     'imoveis',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 # ⚙️ Middlewares
@@ -97,10 +99,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# 📁 File Storage Configuration
+if os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    # Produção: Cloudinary
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    # Desenvolvimento: Local
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 📱 WhatsApp Configuration
 WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '5583987654321')  # Número com código do país
+
+# ☁️ Cloudinary Configuration (para imagens)
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+cloudinary.config(**CLOUDINARY_STORAGE)
 
 # 🌐 CORS (ligação com o Vercel)
 CORS_ALLOWED_ORIGINS = [
