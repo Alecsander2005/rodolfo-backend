@@ -101,10 +101,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 🌐 CORS (ligação com o Vercel)
 CORS_ALLOWED_ORIGINS = [
-    "https://rodolfovelosocorretor.vercel.app"
+    "https://rodolfovelosocorretor.vercel.app",
+    "http://localhost:3000",  # Para testes locais
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 # 🔐 (opcional, mas recomendado se tiver POST/login)
 CSRF_TRUSTED_ORIGINS = [
-    "https://rodolfovelosocorretor.vercel.app"
+    "https://rodolfovelosocorretor.vercel.app",
+    "http://localhost:3000",
 ]
