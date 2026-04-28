@@ -5,10 +5,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 Segurança
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temp-key')
-
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']  # depois você pode colocar o domínio do Render
+ALLOWED_HOSTS = ['*']  # depois você pode restringir
 
 # 🧩 Apps
 INSTALLED_APPS = [
@@ -19,13 +18,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'imoveis',  
+    'corsheaders',   # 👈 ADICIONA
+    'imoveis',
 ]
 
 # ⚙️ Middlewares
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 importante pro Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -36,7 +37,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-# 🎨 Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -48,8 +48,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
-            
             ],
         },
     },
@@ -57,7 +55,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# 🗄️ Banco (SQLite padrão - depois pode trocar)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -65,7 +62,6 @@ DATABASES = {
     }
 }
 
-# 🔒 Validações
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -73,18 +69,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# 🌍 Internacionalização
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Recife'
 USE_I18N = True
 USE_TZ = True
 
-# 📦 Arquivos estáticos
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise config
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# 🔑 Default
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 🌐 CORS (ligação com o Vercel)
+CORS_ALLOWED_ORIGINS = [
+    "https://rodolfovelosocorretor.vercel.app"
+]
+
+# 🔐 (opcional, mas recomendado se tiver POST/login)
+CSRF_TRUSTED_ORIGINS = [
+    "https://rodolfovelosocorretor.vercel.app"
+]
