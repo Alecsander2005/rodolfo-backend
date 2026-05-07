@@ -1,5 +1,5 @@
 import json
-from django.http import JsonResponse, Http404, HttpResponseRedirect
+from django.http import JsonResponse, Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -7,15 +7,18 @@ from django.urls import reverse_lazy
 from .models import Imovel, Imagem
 from .forms import ImovelForm
 
+
 class ImovelListView(ListView):
     model = Imovel
     template_name = 'imoveis/imovel_list.html'
     context_object_name = 'imoveis'
 
+
 class ImovelDetailView(DetailView):
     model = Imovel
     template_name = 'imoveis/imovel_detail.html'
     context_object_name = 'imovel'
+
 
 class ImovelCreateView(CreateView):
     model = Imovel
@@ -24,20 +27,31 @@ class ImovelCreateView(CreateView):
     success_url = reverse_lazy('imovel_list')
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        try:
+            self.object = form.save(commit=False)
 
-        if self.request.POST.get('remover_imagem_principal'):
-            self.object.imagem_principal = None
+            if self.request.POST.get('remover_imagem_principal'):
+                self.object.imagem_principal = None
 
-        if self.request.FILES.get('imagem_principal'):
-            self.object.imagem_principal = self.request.FILES['imagem_principal']
+            if self.request.FILES.get('imagem_principal'):
+                self.object.imagem_principal = self.request.FILES['imagem_principal']
 
-        self.object.save()
+            self.object.save()
 
-        for imagem in self.request.FILES.getlist('outras_imagens'):
-            Imagem.objects.create(imovel=self.object, imagem=imagem)
+            for imagem in self.request.FILES.getlist('outras_imagens'):
+                Imagem.objects.create(
+                    imovel=self.object,
+                    imagem=imagem
+                )
 
-        return HttpResponseRedirect(self.get_success_url())
+            return HttpResponseRedirect(self.get_success_url())
+
+        except Exception as e:
+            return HttpResponse(f"""
+                <h1>ERRO AO SALVAR IMÓVEL</h1>
+                <pre>{str(e)}</pre>
+            """)
+
 
 class ImovelUpdateView(UpdateView):
     model = Imovel
@@ -46,26 +60,40 @@ class ImovelUpdateView(UpdateView):
     success_url = reverse_lazy('imovel_list')
 
     def form_valid(self, form):
-        existing_imovel = self.get_object()
-        existing_image = existing_imovel.imagem_principal
+        try:
+            existing_imovel = self.get_object()
+            existing_image = existing_imovel.imagem_principal
 
-        self.object = form.save(commit=False)
+            self.object = form.save(commit=False)
 
-        if self.request.POST.get('remover_imagem_principal'):
-            if existing_image:
-                existing_image.delete(save=False)
-            self.object.imagem_principal = None
-        elif self.request.FILES.get('imagem_principal'):
-            if existing_image:
-                existing_image.delete(save=False)
-            self.object.imagem_principal = self.request.FILES['imagem_principal']
+            if self.request.POST.get('remover_imagem_principal'):
+                if existing_image:
+                    existing_image.delete(save=False)
 
-        self.object.save()
+                self.object.imagem_principal = None
 
-        for imagem in self.request.FILES.getlist('outras_imagens'):
-            Imagem.objects.create(imovel=self.object, imagem=imagem)
+            elif self.request.FILES.get('imagem_principal'):
+                if existing_image:
+                    existing_image.delete(save=False)
 
-        return HttpResponseRedirect(self.get_success_url())
+                self.object.imagem_principal = self.request.FILES['imagem_principal']
+
+            self.object.save()
+
+            for imagem in self.request.FILES.getlist('outras_imagens'):
+                Imagem.objects.create(
+                    imovel=self.object,
+                    imagem=imagem
+                )
+
+            return HttpResponseRedirect(self.get_success_url())
+
+        except Exception as e:
+            return HttpResponse(f"""
+                <h1>ERRO AO ATUALIZAR IMÓVEL</h1>
+                <pre>{str(e)}</pre>
+            """)
+
 
 class ImovelDeleteView(DeleteView):
     model = Imovel
@@ -76,22 +104,33 @@ class ImovelDeleteView(DeleteView):
 def delete_imagem(request, pk):
     imagem = get_object_or_404(Imagem, pk=pk)
     imovel_pk = imagem.imovel.pk
+
     if request.method == 'POST':
         imagem.delete()
+
     return redirect('imovel_update', pk=imovel_pk)
 
 
 def _serialize_imovel(imovel, request):
     imagens = []
+
     for imagem in imovel.imagens.all():
         if imagem.imagem:
-            imagens.append(request.build_absolute_uri(imagem.imagem.url))
+            imagens.append(
+                request.build_absolute_uri(imagem.imagem.url)
+            )
 
     if not imagens:
         if imovel.imagem_principal:
-            imagens = [request.build_absolute_uri(imovel.imagem_principal.url)]
+            imagens = [
+                request.build_absolute_uri(
+                    imovel.imagem_principal.url
+                )
+            ]
         else:
-            imagens = [request.build_absolute_uri('/imovel1.jpg')]
+            imagens = [
+                request.build_absolute_uri('/imovel1.jpg')
+            ]
 
     return {
         'id': imovel.id,
@@ -117,19 +156,32 @@ def _serialize_imovel(imovel, request):
 
 @csrf_exempt
 def api_imoveis_list(request):
+
     if request.method == 'OPTIONS':
         return JsonResponse({}, status=200)
 
     if request.method == 'GET':
         imoveis = Imovel.objects.all()
-        data = [_serialize_imovel(imovel, request) for imovel in imoveis]
+
+        data = [
+            _serialize_imovel(imovel, request)
+            for imovel in imoveis
+        ]
+
         return JsonResponse(data, safe=False)
 
     if request.method == 'POST':
+
         try:
-            payload = json.loads(request.body.decode('utf-8') or '{}')
+            payload = json.loads(
+                request.body.decode('utf-8') or '{}'
+            )
+
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido'}, status=400)
+            return JsonResponse(
+                {'error': 'JSON inválido'},
+                status=400
+            )
 
         imovel = Imovel.objects.create(
             titulo=payload.get('titulo', ''),
@@ -143,56 +195,90 @@ def api_imoveis_list(request):
             metragem=payload.get('metragem', 0),
             tipo=payload.get('tipo', 'venda'),
         )
-        return JsonResponse(_serialize_imovel(imovel, request), status=201)
 
-    return JsonResponse({'error': 'Método não permitido'}, status=405)
+        return JsonResponse(
+            _serialize_imovel(imovel, request),
+            status=201
+        )
+
+    return JsonResponse(
+        {'error': 'Método não permitido'},
+        status=405
+    )
 
 
 @csrf_exempt
 def api_imovel_detail(request, pk):
+
     if request.method == 'OPTIONS':
         return JsonResponse({}, status=200)
 
     try:
         imovel = Imovel.objects.get(pk=pk)
+
     except Imovel.DoesNotExist:
         raise Http404('Imóvel não encontrado')
 
     if request.method == 'GET':
-        return JsonResponse(_serialize_imovel(imovel, request))
+        return JsonResponse(
+            _serialize_imovel(imovel, request)
+        )
 
     if request.method == 'PUT':
+
         try:
-            payload = json.loads(request.body.decode('utf-8') or '{}')
+            payload = json.loads(
+                request.body.decode('utf-8') or '{}'
+            )
+
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'JSON inválido'}, status=400)
+            return JsonResponse(
+                {'error': 'JSON inválido'},
+                status=400
+            )
 
         if payload.get('titulo') is not None:
             imovel.titulo = payload['titulo']
+
         if payload.get('descricao') is not None:
             imovel.descricao = payload['descricao']
+
         if payload.get('preco') is not None:
             imovel.preco = payload['preco']
+
         if payload.get('cidade') is not None:
             imovel.cidade = payload['cidade']
+
         if payload.get('bairro') is not None:
             imovel.bairro = payload['bairro']
+
         if payload.get('quartos') is not None:
             imovel.quartos = payload['quartos']
+
         if payload.get('banheiros') is not None:
             imovel.banheiros = payload['banheiros']
+
         if payload.get('vagas') is not None:
             imovel.vagas_garagem = payload['vagas']
+
         if payload.get('metragem') is not None:
             imovel.metragem = payload['metragem']
+
         if payload.get('tipo') is not None:
             imovel.tipo = payload['tipo']
 
         imovel.save()
-        return JsonResponse(_serialize_imovel(imovel, request))
+
+        return JsonResponse(
+            _serialize_imovel(imovel, request)
+        )
 
     if request.method == 'DELETE':
         imovel.delete()
+
         return JsonResponse({'deleted': True})
 
-    return JsonResponse({'error': 'Método não permitido'}, status=405)
+    return JsonResponse(
+        {'error': 'Método não permitido'},
+        status=405
+    )
