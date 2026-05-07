@@ -16,6 +16,7 @@ def test_cloudinary():
 
     try:
         import cloudinary
+        from cloudinary import api
         print("✅ Cloudinary importado com sucesso")
 
         # Verifica se as credenciais estão configuradas

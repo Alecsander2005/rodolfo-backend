@@ -2,12 +2,25 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import cloudinary
+from django.core.exceptions import ImproperlyConfigured
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+
+def get_env(name, default=''):
+    value = os.getenv(name, default)
+    if isinstance(value, str):
+        value = value.strip()
+        if name == 'CLOUDINARY_CLOUD_NAME':
+            value = value.lower()
+    return value
+
+
+SECRET_KEY = get_env('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('SECRET_KEY não está configurado.')
 
 DEBUG = False
 
@@ -69,11 +82,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'NAME': get_env('DB_NAME'),
+        'USER': get_env('DB_USER'),
+        'PASSWORD': get_env('DB_PASSWORD'),
+        'HOST': get_env('DB_HOST'),
+        'PORT': get_env('DB_PORT'),
     }
 }
 
@@ -106,16 +119,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': get_env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': get_env('CLOUDINARY_API_KEY'),
+    'API_SECRET': get_env('CLOUDINARY_API_SECRET'),
 }
 
 cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.getenv('CLOUDINARY_API_KEY'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
 )
+
+if not CLOUDINARY_STORAGE['CLOUD_NAME']:
+    raise ImproperlyConfigured('CLOUDINARY_CLOUD_NAME não está configurado.')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
