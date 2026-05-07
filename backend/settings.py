@@ -1,15 +1,23 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+import cloudinary
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 🔐 Segurança
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temp-key')
+SECRET_KEY = os.getenv('SECRET_KEY')
+
 DEBUG = False
 
-ALLOWED_HOSTS = ['rodolfo-backend-1.onrender.com', 'localhost', '127.0.0.1', '.onrender.com']
+ALLOWED_HOSTS = [
+    'rodolfo-backend-1.onrender.com',
+    '.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
-# 🧩 Apps
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,15 +26,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'corsheaders',   # 👈 CORS
-    'imoveis',
-    'cloudinary_storage',
+    'corsheaders',
+
     'cloudinary',
+    'cloudinary_storage',
+
+    'imoveis',
 ]
 
-# ⚙️ Middlewares
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # 👈 TEM QUE SER O PRIMEIRO
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,106 +66,71 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# 🗄️ Database Configuration
-if os.environ.get('DATABASE_URL'):
-    # Render PostgreSQL - usar URL interna
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'rodolfo_db',
-            'USER': 'rodolfo_user',
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'nShkJUoFwETH1e8bzjB3j8wgI8ODZ8X6'),
-            'HOST': 'dpg-d7nvub9kh4rs73bg1r1g-a',
-            'PORT': '5432',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
-else:
-    # Local SQLite (development)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Recife'
+
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# 📁 File Storage Configuration
-if os.environ.get('CLOUDINARY_CLOUD_NAME'):
-    # Produção: Cloudinary
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-else:
-    # Desenvolvimento: Local
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
+)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# 📱 WhatsApp Configuration
-WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '5583987654321')  # Número com código do país
-
-# ☁️ Cloudinary Configuration (para imagens)
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
-
-cloudinary.config(**CLOUDINARY_STORAGE)
-
-# 🌐 CORS (ligação com o Vercel)
 CORS_ALLOWED_ORIGINS = [
-    "https://rodolfovelosocorretor.vercel.app",
-    "http://localhost:3000",  # Para testes locais
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
-
-# 🔐 (opcional, mas recomendado se tiver POST/login)
-CSRF_TRUSTED_ORIGINS = [
     "https://rodolfovelosocorretor.vercel.app",
     "http://localhost:3000",
 ]
 
-# 🔒 Segurança em Produção
-if not DEBUG:
-    SECURE_SSL_REDIRECT = False  # Render gerencia SSL
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_SECURITY_POLICY = {
-        "default-src": ("'self'", "https://rodolfovelosocorretor.vercel.app"),
-    }
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://rodolfovelosocorretor.vercel.app",
+]
+
+SECURE_SSL_REDIRECT = False
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
