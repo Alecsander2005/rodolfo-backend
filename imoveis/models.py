@@ -5,6 +5,11 @@ from cloudinary.models import CloudinaryField
 
 class Imovel(models.Model):
 
+    TIPO_VAGA_CHOICES = [
+        ('Fixa', 'Fixa'),
+        ('Rotativa', 'Rotativa'),
+    ]
+
     FINALIDADE_CHOICES = [
         ('venda', 'Venda'),
         ('aluguel', 'Aluguel'),
@@ -14,7 +19,9 @@ class Imovel(models.Model):
 
     CIDADE_CHOICES = [
         ('João Pessoa', 'João Pessoa'),
-        ('Mediaçoes', 'Mediações'),
+        ('Cabedelo', 'Cabedelo'),
+        ('Conde', 'Conde'),
+
     ]
 
     STATUS_CHOICES = [
@@ -42,20 +49,23 @@ class Imovel(models.Model):
     cidade = models.CharField(max_length=100, choices=CIDADE_CHOICES)
     bairro = models.CharField(max_length=100)
 
-    quartos = models.IntegerField()
-    banheiros = models.IntegerField()
-    vagas_garagem = models.IntegerField()
+    quartos = models.PositiveIntegerField()
+    banheiros = models.PositiveBigIntegerField()
+    vagas_garagem = models.PositiveIntegerField(
+        default=0,
+    )
+
+    tipo_vaga = models.CharField(
+        max_length=10,
+        choices=TIPO_VAGA_CHOICES,
+        blank=True,
+        null=True
+    )
 
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
 
     finalidade = models.CharField(max_length=20, choices=FINALIDADE_CHOICES)
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
-
-    imagem_principal = CloudinaryField(
-        'image',
-        blank=True,
-        null=True
-    )
 
     criado_em = models.DateTimeField(auto_now_add=True)
 

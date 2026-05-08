@@ -30,12 +30,6 @@ class ImovelCreateView(CreateView):
         try:
             self.object = form.save(commit=False)
 
-            if self.request.POST.get('remover_imagem_principal'):
-                self.object.imagem_principal = None
-
-            if self.request.FILES.get('imagem_principal'):
-                self.object.imagem_principal = self.request.FILES['imagem_principal']
-
             self.object.save()
 
             for imagem in self.request.FILES.getlist('outras_imagens'):
@@ -65,18 +59,6 @@ class ImovelUpdateView(UpdateView):
             existing_image = existing_imovel.imagem_principal
 
             self.object = form.save(commit=False)
-
-            if self.request.POST.get('remover_imagem_principal'):
-                if existing_image:
-                    existing_image.delete(save=False)
-
-                self.object.imagem_principal = None
-
-            elif self.request.FILES.get('imagem_principal'):
-                if existing_image:
-                    existing_image.delete(save=False)
-
-                self.object.imagem_principal = self.request.FILES['imagem_principal']
 
             self.object.save()
 
@@ -142,6 +124,8 @@ def _serialize_imovel(imovel, request):
         'quartos': imovel.quartos,
         'banheiros': imovel.banheiros,
         'vagas': imovel.vagas_garagem,
+        'tipo_vaga': imovel.tipo_vaga,
+        'tipo_vaga_display': imovel.get_tipo_vaga_display() if imovel.tipo_vaga else None,
         'metragem': float(imovel.metragem),
         'tipo': imovel.tipo,
         'finalidade': imovel.finalidade,
@@ -192,8 +176,11 @@ def api_imoveis_list(request):
             quartos=payload.get('quartos', 0),
             banheiros=payload.get('banheiros', 0),
             vagas_garagem=payload.get('vagas', 0),
+            tipo_vaga=payload.get('tipo_vaga'),
             metragem=payload.get('metragem', 0),
-            tipo=payload.get('tipo', 'venda'),
+            tipo=payload.get('tipo', 'casa'),
+            finalidade=payload.get('finalidade', 'venda'),
+            status=payload.get('status', 'pronto'),
         )
 
         return JsonResponse(
@@ -261,11 +248,20 @@ def api_imovel_detail(request, pk):
         if payload.get('vagas') is not None:
             imovel.vagas_garagem = payload['vagas']
 
+        if payload.get('tipo_vaga') is not None:
+            imovel.tipo_vaga = payload['tipo_vaga']
+
         if payload.get('metragem') is not None:
             imovel.metragem = payload['metragem']
 
         if payload.get('tipo') is not None:
             imovel.tipo = payload['tipo']
+
+        if payload.get('finalidade') is not None:
+            imovel.finalidade = payload['finalidade']
+
+        if payload.get('status') is not None:
+            imovel.status = payload['status']
 
         imovel.save()
 

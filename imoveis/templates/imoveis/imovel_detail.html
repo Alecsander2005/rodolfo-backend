@@ -11,17 +11,13 @@
     <strong>ID:</strong> {{ object.pk }} • <strong>Tipo:</strong> {{ object.tipo }} • <strong>Finalidade:</strong> {{ object.finalidade }} • <strong>Situação:</strong> {{ object.status }} • <strong>Criado em:</strong> {{ object.criado_em|date:'d/m/Y H:i' }}
   </div>
 
-  {% if object.imagem_principal or object.imagens.exists %}
+  {% if object.imagens.exists %}
     <div style="display:grid; gap:12px; margin-bottom:24px;">
-      {% if object.imagem_principal %}
-        <img src="{{ object.imagem_principal.url }}" alt="{{ object.titulo }}" style="width:100%; max-height:420px; object-fit:cover; border-radius:24px;" />
-      {% elif object.imagens.exists %}
-        <img src="{{ object.imagens.all.0.imagem.url }}" alt="{{ object.titulo }}" style="width:100%; max-height:420px; object-fit:cover; border-radius:24px;" />
-      {% endif %}
-      {% if object.imagens.exists %}
+      <img src="{{ object.imagens.all.0.imagem.url }}" alt="{{ object.titulo }}" style="width:100%; max-height:420px; object-fit:cover; border-radius:24px;" />
+      {% if object.imagens.all|length > 1 %}
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;">
           {% for foto in object.imagens.all %}
-            {% if object.imagem_principal or not forloop.first %}
+            {% if not forloop.first %}
               <img src="{{ foto.imagem.url }}" alt="{{ object.titulo }} imagem {{ forloop.counter }}" style="width:100%; height:160px; object-fit:cover; border-radius:18px; border:1px solid #e5e7eb;" />
             {% endif %}
           {% endfor %}
