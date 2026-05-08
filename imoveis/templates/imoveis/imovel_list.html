@@ -10,7 +10,7 @@
   </div>
 
   <div class="notice">
-    Este painel funciona diretamente para o administrador do site. Faça uploads de imagem principal ao cadastrar ou editar.
+    Este painel funciona diretamente para o administrador do site. Faça uploads de imagens ao cadastrar ou editar; a primeira imagem adicionada será usada como destaque.
   </div>
 
   <div class="table-responsive" style="overflow-x:auto;">
@@ -34,6 +34,8 @@
             <td data-label="Foto">
               {% if imovel.imagem_principal %}
                 <img src="{{ imovel.imagem_principal.url }}" alt="{{ imovel.titulo }}" class="table-image" />
+              {% elif imovel.imagens.exists %}
+                <img src="{{ imovel.imagens.all.0.imagem.url }}" alt="{{ imovel.titulo }}" class="table-image" />
               {% else %}
                 <div style="width:80px; height:60px; border-radius:14px; background:#e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280;">sem foto</div>
               {% endif %}
