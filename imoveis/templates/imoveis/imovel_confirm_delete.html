@@ -16,7 +16,7 @@
 
   <form method="post">
     {% csrf_token %}
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div class="button-stack">
       <input type="submit" value="Confirmar exclusão" class="button" />
       <a href="{% url 'imovel_list' %}" class="button secondary">Cancelar</a>
     </div>

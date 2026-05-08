@@ -6,12 +6,7 @@
       <h2 style="margin:0; font-size:1.4rem;">{{ object.titulo }}</h2>
       <p style="margin:8px 0 0; color:#6b7280;">Detalhes do imóvel cadastrado.</p>
     </div>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <a href="{% url 'imovel_update' object.pk %}" class="button secondary small-button">Editar</a>
-      <a href="{% url 'imovel_delete' object.pk %}" class="button secondary small-button">Excluir</a>
-    </div>
-  </div>
-
+      <div class="button-stack">
   <div class="notice">
     <strong>ID:</strong> {{ object.pk }} • <strong>Tipo:</strong> {{ object.tipo }} • <strong>Finalidade:</strong> {{ object.finalidade }} • <strong>Situação:</strong> {{ object.status }} • <strong>Criado em:</strong> {{ object.criado_em|date:'d/m/Y H:i' }}
   </div>
@@ -54,7 +49,7 @@
     <p style="line-height:1.75; color:#374151;">{{ object.descricao }}</p>
   </div>
 
-  <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+  <div style="margin-top:24px;" class="button-stack">
     <a href="{% url 'imovel_list' %}" class="button secondary">Voltar</a>
     <a href="{% url 'imovel_update' object.pk %}" class="button">Editar</a>
   </div>

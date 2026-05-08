@@ -48,9 +48,11 @@
             <td data-label="Finalidade">{{ imovel.finalidade }}</td>
             <td data-label="Situação">{{ imovel.status }}</td>
             <td data-label="Ações">
-              <a href="{% url 'imovel_update' imovel.pk %}" class="button secondary small-button">Editar</a>
-              <a href="{% url 'imovel_delete' imovel.pk %}" class="button secondary small-button">Excluir</a>
-              <a href="{% url 'imovel_detail' imovel.pk %}" class="button secondary small-button">Ver</a>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <a href="{% url 'imovel_update' imovel.pk %}" class="button secondary small-button">Editar</a>
+                <a href="{% url 'imovel_delete' imovel.pk %}" class="button secondary small-button">Excluir</a>
+                <a href="{% url 'imovel_detail' imovel.pk %}" class="button secondary small-button">Ver</a>
+              </div>
             </td>
           </tr>
         {% empty %}

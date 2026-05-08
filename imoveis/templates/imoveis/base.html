@@ -65,6 +65,17 @@
       a.button.secondary:hover {
         background: #d6d8db;
       }
+      .button-stack {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .button-stack > .button,
+      .button-stack > input[type="submit"],
+      .button-stack > button {
+        min-width: 0;
+      }
       .small-button {
         border-radius: 999px;
         padding: 8px 12px;
@@ -234,6 +245,11 @@
           width: 100%;
         }
 
+        .button-stack {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
         .form-grid {
           gap: 14px;
         }
@@ -307,7 +323,7 @@
             <p style="margin:0; font-size:0.95rem; color:#10b981; text-transform:uppercase; letter-spacing:1px;">Painel Admin</p>
             <h1 style="margin:8px 0 0; font-size:2rem;">RODOLFO IMÓVEIS</h1>
           </div>
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div class="button-stack">
             <a href="{% url 'imovel_list' %}" class="button secondary">Lista de imóveis</a>
             <a href="{% url 'imovel_create' %}" class="button">Novo imóvel</a>
           </div>
