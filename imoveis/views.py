@@ -55,9 +55,6 @@ class ImovelUpdateView(UpdateView):
 
     def form_valid(self, form):
         try:
-            existing_imovel = self.get_object()
-            existing_image = existing_imovel.imagem_principal
-
             self.object = form.save(commit=False)
 
             self.object.save()
@@ -103,10 +100,10 @@ def _serialize_imovel(imovel, request):
             )
 
     if not imagens:
-        if imovel.imagem_principal:
+        if imovel.imagens.exists():
             imagens = [
                 request.build_absolute_uri(
-                    imovel.imagem_principal.url
+                    imovel.imagens.first().imagem.url
                 )
             ]
         else:
