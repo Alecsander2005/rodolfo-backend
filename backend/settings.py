@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import cloudinary
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
 load_dotenv()
@@ -79,16 +80,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+
+# ==========================
+# BANCO DE DADOS SUPABASE
+# ==========================
+
+DATABASE_URL = get_env('DATABASE_URL')
+
+if not DATABASE_URL:
+    raise ImproperlyConfigured('DATABASE_URL não está configurada.')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_env('DB_NAME'),
-        'USER': get_env('DB_USER'),
-        'PASSWORD': get_env('DB_PASSWORD'),
-        'HOST': get_env('DB_HOST'),
-        'PORT': get_env('DB_PORT'),
-    }
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -131,7 +140,9 @@ cloudinary.config(
 )
 
 if not CLOUDINARY_STORAGE['CLOUD_NAME']:
-    raise ImproperlyConfigured('CLOUDINARY_CLOUD_NAME não está configurado.')
+    raise ImproperlyConfigured(
+        'CLOUDINARY_CLOUD_NAME não está configurado.'
+    )
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
